@@ -1,71 +1,90 @@
 @font-face {
-  font-family: "Zilla Slab";
-  src: url("ZillaSlab.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 700;
+    font-family: "Zilla Slab";
+    src: url("ZillaSlab.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 700;
+}
+
+@property --flash-color {
+    syntax: '<color>';
+    initial-value: #faf9f6;
+    inherits: false;
 }
 
 html {
-  font-family: "Zilla Slab", Sans-serif;
-  font-size: 100px;
+    font-family: "Zilla Slab", Sans-serif;
+    font-size: 5vw;
+	cursor: none;
 }
 
 body {
-  background-color: #d4b902;
-  margin: 0;
+    background-color: #d4b902;
+    margin: 0;
 }
 body.warn-0-mins {
-  animation-duration: 0.75s;
-  animation-iteration-count: infinite;
+    animation-duration: 0.75s;
+    animation-iteration-count: infinite;
+    --flash-color: #f22;
 }
 body.warn-5-mins {
-  animation-duration: 1s;
-  animation-iteration-count: infinite;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    --flash-color: #f80;
 }
 body.warn-10-mins {
-  animation-duration: 1.25s;
-  animation-iteration-count: infinite;
+    animation-duration: 1.25s;
+    animation-iteration-count: infinite;
+    --flash-color: #ff0;
 }
 body.highlight {
-  animation-name: flash-background;
+    animation-name: flash-background;
 }
 
 .page {
-  display: grid;
-  grid-template-columns: 1fr 500px;
-  grid-gap: 30px;
-  margin: 20px;
+    display: grid;
+    grid-template-columns: 1fr 22vw;
+    grid-gap: 1.5vw;
+    margin: 1vw;
 }
 
 .page div {
-  background-color: #faf9f6;
-  color: #2b1D0f;
-  padding: 20px;
-  text-align: center;
+    background-color: #faf9f6;
+    color: #2b1d0f;
+    padding: 1vw;
+    text-align: center;
 }
 
 #remaining {
-  font-size: 1.5rem;
+    font-size: 1.5rem;
 }
 .warn-0-mins #remaining {
-  background-color: #f22;
+    background-color: #f22;
 }
 .warn-5-mins #remaining {
-  background-color: #f80;
+    background-color: #f80;
 }
 .warn-10-mins #remaining {
-  background-color: #ff0;
+    background-color: #ff0;
 }
 
 #time {
-  font-kerning: none;
-  font-size: 1.5rem;
+    font-kerning: none;
+    font-size: 1.5rem;
 }
 
 #content {
-  grid-column: 1 / span 2;
-  padding-top: 100px;
-  padding-bottom: 100px;
+    grid-column: 1 / span 2;
+    padding-top: 5vw;
+    padding-bottom: 5vw;
+}
+
+#content.mute-info {
+    display: flex;
+    padding: 1vw;
+}
+
+#content.mute-info img {
+    height: 65vh;
 }
 
 .times {
@@ -78,7 +97,7 @@ body.highlight {
         background-color: #d4b902;
     }
     50% {
-        background-color: red;
+        background-color: var(--flash-color);
     }
     100% {
         background-color: #d4b902;

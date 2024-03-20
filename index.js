@@ -1,17 +1,5 @@
 let schedule = [
      {
-        "beginTime": new Date("2024-03-17T23:00:00.000+01:00"),
-        "endTime": new Date("2024-03-17T23:20:00.000+01:00"),
-        "name": "Day of Dungeons 2024 Setup",
-        "description": ""
-     },
-     {
-        "beginTime": new Date("2024-03-17T23:37:00.000+01:00"),
-        "endTime": new Date("2024-03-17T23:50:00.000+01:00"),
-        "name": "Test",
-        "description": ""
-     },
-     {
         "beginTime": new Date("2024-03-23T10:00:00.000+01:00"),
         "endTime": new Date("2024-03-23T11:30:00.000+01:00"),
         "name": "Elven & Stuutjes",
@@ -84,62 +72,79 @@ while (nextEvent.beginTime.getTime() - 10*60*1000 <= Date.now()) {
     currentEvent = nextEvent;
     nextEvent = iterator.next().value;
 }
-gui.time.textContent = getTimeString(new Date());
-updateRemaining();
+updateGui();
 updateContent();
 
-// Update every second
-window.setInterval(() => {
+// Wait until the nearest minute, then update every minute
+setTimeout(() => {
+    window.setInterval(updateGui, 60*1000);
+    updateGui();
+}, 60*1000 - Date.now() % (60*1000));
+
+function updateGui() {
+    console.log('updateGui triggered');
+
     // Update current time
     gui.time.textContent = getTimeString(new Date());
-    updateRemaining();
-    // Update current event
-    if (nextEvent != undefined && nextEvent.beginTime.getTime() - 10*60*1000 <= Date.now()) {
-        currentEvent = nextEvent;
-        nextEvent = iterator.next().value;
-        updateContent();
-    }
-}, 1000);
 
-function updateRemaining() {
+    // Update remaining
     if (currentEvent.beginTime.getTime() > Date.now()) {
         if (document.body.classList.contains('warn-0-mins')) {
             document.body.classList.remove('warn-0-mins');
         }
         let minutesLeft = Math.ceil((currentEvent.beginTime.getTime() - Date.now()) / (60*1000));
         gui.remaining.textContent = "Start in " + minutesLeft + " min";
-        return;
+    } else {
+        let minutesLeft = Math.ceil((currentEvent.endTime.getTime() - Date.now()) / (60*1000));
+        let alertNeeded = false;
+        if (minutesLeft <= 0) {
+            if (!document.body.classList.contains('warn-0-mins')) {
+                document.body.classList.remove('warn-5-mins');
+                document.body.classList.add('warn-0-mins');
+                document.body.classList.add('highlight');
+                setTimeout(() => document.body.classList.remove('highlight'), 4500);
+            }
+        } else if (minutesLeft <= 5) {
+            if (!document.body.classList.contains('warn-5-mins')) {
+                document.body.classList.remove('warn-10-mins');
+                document.body.classList.add('warn-5-mins');
+                document.body.classList.add('highlight');
+                setTimeout(() => document.body.classList.remove('highlight'), 4000);
+            }
+        } else if (minutesLeft <= 10) {
+            if (!document.body.classList.contains('warn-10-mins')) {
+                document.body.classList.add('warn-10-mins');
+                document.body.classList.add('highlight');
+                setTimeout(() => document.body.classList.remove('highlight'), 3750);
+            }
+        }
+        gui.remaining.textContent = Math.abs(minutesLeft) + " min " + (minutesLeft >= 0 ? "remaining" : "overshoot");
     }
 
-    let minutesLeft = Math.ceil((currentEvent.endTime.getTime() - Date.now()) / (60*1000));
-    let alertNeeded = false;
-    if (minutesLeft <= 0) {
-        if (!document.body.classList.contains('warn-0-mins')) {
-            document.body.classList.remove('warn-5-mins');
-            document.body.classList.add('warn-0-mins');
-            document.body.classList.add('highlight');
-            setTimeout(() => document.body.classList.remove('highlight'), 4500);
-        }
-    } else if (minutesLeft <= 5) {
-        if (!document.body.classList.contains('warn-5-mins')) {
-            document.body.classList.remove('warn-10-mins');
-            document.body.classList.add('warn-5-mins');
-            document.body.classList.add('highlight');
-            setTimeout(() => document.body.classList.remove('highlight'), 4000);
-        }
-    } else if (minutesLeft <= 10) {
-        if (!document.body.classList.contains('warn-10-mins')) {
-            document.body.classList.add('warn-10-mins');
-            document.body.classList.add('highlight');
-            setTimeout(() => document.body.classList.remove('highlight'), 3750);
-        }
+    // Show mute screen
+    if (!gui.content.classList.contains('mute-info') && currentEvent.beginTime.getTime() - 2*60*1000 <= Date.now() && currentEvent.beginTime.getTime() > Date.now()) {
+        gui.content.classList.add('mute-info');
+        updateContent();
     }
-
-    gui.remaining.textContent = Math.abs(minutesLeft) + " min " + (minutesLeft >= 0 ? "remaining" : "overshoot");
+    // Hide mute screen
+    if (gui.content.classList.contains('mute-info') && currentEvent.beginTime.getTime() < Date.now()) {
+        gui.content.classList.remove('mute-info');
+        updateContent();
+    }
+    // Update current event
+    if (nextEvent != undefined && nextEvent.beginTime.getTime() - 10*60*1000 <= Date.now()) {
+        currentEvent = nextEvent;
+        nextEvent = iterator.next().value;
+        updateContent();
+    }
 }
 
 function updateContent() {
-    gui.content.innerHTML = '<span class="times">' + getTimeString(currentEvent.beginTime) + " - " + getTimeString(currentEvent.endTime) + "</span><br>" + currentEvent.name;
+    if (gui.content.classList.contains('mute-info')) {
+        gui.content.innerHTML = "<p>Don't forget to unmute when you're ready!</p><img src=\"mute.png\">";
+    } else {
+        gui.content.innerHTML = '<span class="times">' + getTimeString(currentEvent.beginTime) + " - " + getTimeString(currentEvent.endTime) + "</span><br>" + currentEvent.name;
+    }
 }
 
 function getTimeString(date) {
