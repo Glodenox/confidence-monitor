@@ -1,102 +1,106 @@
-let schedule = [
-     {
-        "beginTime": new Date("2024-03-23T10:00:00.000+01:00"),
-        "endTime": new Date("2024-03-23T11:30:00.000+01:00"),
-        "name": "Elven & Stuutjes",
-        "description": "(NL) Our favourite Belgian actual play podcasters Stuutjes & Draken and Elven voor Twaalven talk about their lore and behind the scene secrets"
-     }, {
-        "beginTime": new Date("2024-03-23T11:45:00.000+01:00"),
-        "endTime": new Date("2024-03-23T12:15:00.000+01:00"),
-        "name": "Taverne De Drakenvleugel",
-        "description": "(NL) Book launch for a TTRPG-inspired short story anthology, presented by the authors"
-     }, {
-        "beginTime": new Date("2024-03-23T12:30:00.000+01:00"),
-        "endTime": new Date("2024-03-23T13:30:00.000+01:00"),
-        "name": "Cosplay Catwalk",
-        "description": ""
-     }, {
-        "beginTime": new Date("2024-03-23T14:00:00.000+01:00"),
-        "endTime": new Date("2024-03-23T16:30:00.000+01:00"),
-        "name": "Live Play",
-        "description": "Legendary adventurers take to the stage to provide you with entertainment during this interactive D&D play session"
-     }, {
-        "beginTime": new Date("2024-03-23T17:00:00.000+01:00"),
-        "endTime": new Date("2024-03-23T17:15:00.000+01:00"),
-        "name": "Cosplay Awards",
-        "description": ""
-     }, {
-        "beginTime": new Date("2024-03-23T17:30:00.000+01:00"),
-        "endTime": new Date("2024-03-23T18:30:00.000+01:00"),
-        "name": "Worlds at a Glance",
-        "description": "Immerse your players in vivid towns and villages. Learn to create memorable locations and inhabitants of your fantasy cities"
-     }, {
-        "beginTime": new Date("2024-03-24T10:00:00.000+01:00"),
-        "endTime": new Date("2024-03-24T11:00:00.000+01:00"),
-        "name": "Player's Power Hour",
-        "description": "Sharpen your decision-making and table etiquette to become an even more impactful and pleasant player"
-     }, {
-        "beginTime": new Date("2024-03-24T11:15:00.000+01:00"),
-        "endTime": new Date("2024-03-24T12:15:00.000+01:00"),
-        "name": "Character Creation",
-        "description": "Embark on a creative journey that fuses the art of roleplay with the technical mastery of character design"
-     }, {
-        "beginTime": new Date("2024-03-24T12:30:00.000+01:00"),
-        "endTime": new Date("2024-03-24T13:30:00.000+01:00"),
-        "name": "Cosplay Catwalk",
-        "description": ""
-     }, {
-        "beginTime": new Date("2024-03-24T14:00:00.000+01:00"),
-        "endTime": new Date("2024-03-24T16:30:00.000+01:00"),
-        "name": "Live Play",
-        "description": "Legendary adventurers take to the stage to provide you with entertainment during this interactive D&D play session"
-     }, {
-        "beginTime": new Date("2024-03-24T17:00:00.000+01:00"),
-        "endTime": new Date("2024-03-24T17:15:00.000+01:00"),
-        "name": "Cosplay Awards",
-        "description": ""
-     }, {
-        "beginTime": new Date("2024-03-24T17:30:00.000+01:00"),
-        "endTime": new Date("2024-03-24T18:00:00.000+01:00"),
-        "name": "Taverne De Drakenvleugel",
-        "description": "(NL) Book launch for a TTRPG-inspired short story anthology, presented by the authors"
-     }
-];
+let lastMoveTimeoutId = null;
+const MINUTE = 60*1000;
+
+let timeShift = 0;
 
 let gui = {};
-['remaining', 'time', 'content'].forEach(id => gui[id] = document.getElementById(id));
+['remaining', 'time', 'content', 'settings-button', 'controls', 'event-name', 'monitor-name', 'fake-time'].forEach(id => gui[id] = document.getElementById(id));
+gui.settings = {};
+['currentTime', 'schedule', 'hour-plus', 'minute-plus', 'time-offset', 'settings-close'].forEach(id => gui.settings[id] = document.getElementById(id));
 
-let iterator = schedule.values();
-let currentEvent = iterator.next().value;
-let nextEvent = iterator.next().value;
-while (nextEvent.beginTime.getTime() - 10*60*1000 <= Date.now()) {
-    currentEvent = nextEvent;
-    nextEvent = iterator.next().value;
+gui["event-name"].textContent = eventName;
+gui["monitor-name"].textContent = monitorName;
+if (!schedule) {
+    schedule = [];
 }
-updateGui();
-updateContent();
 
+updateGui();
 // Wait until the nearest minute, then update every minute
 setTimeout(() => {
-    window.setInterval(updateGui, 60*1000);
+    window.setInterval(updateGui, MINUTE);
     updateGui();
-}, 60*1000 - Date.now() % (60*1000));
+}, MINUTE - Date.now() % MINUTE);
+
+['mousemove', 'keydown', 'keyup'].forEach(event => document.addEventListener(event, showCursor));
+function showCursor() {
+    document.body.classList.remove('hide-cursor');
+    clearTimeout(lastMoveTimeoutId);
+    lastMoveTimeoutId = setTimeout(() => document.body.classList.add('hide-cursor'), 5000);
+}
+
+gui['settings-button'].addEventListener('click', () => {
+    document.body.classList.add('show-settings');
+});
+gui.settings['settings-close'].addEventListener('click', () => {
+    document.body.classList.remove('show-settings');
+});
+document.addEventListener('keydown', event => {
+    if (!document.body.classList.contains('show-settings') && event.key == "s") {
+        document.body.classList.add('show-settings');
+    }
+    if (document.body.classList.contains('show-settings') && event.key == "Escape") {
+        document.body.classList.remove('show-settings');
+    }
+});
+
+var activeEvent = null;
 
 function updateGui() {
-    console.log('updateGui triggered');
+    updateContent();
+    updateCurrentTime();
+    updateRemainingTime();
+}
 
-    // Update current time
-    gui.time.textContent = getTimeString(new Date());
+function updateContent() {
+    // Retrieve current event
+    let iterator = schedule.values();
+    let currentEvent = iterator.next().value,
+        nextEvent = iterator.next().value;
 
-    // Update remaining
-    if (currentEvent.beginTime.getTime() > Date.now()) {
-        if (document.body.classList.contains('warn-0-mins')) {
-            document.body.classList.remove('warn-0-mins');
+    while (nextEvent != undefined && constructTodayTime(currentEvent.endTime) <= getNow() && constructTodayTime(nextEvent.beginTime) - 10*MINUTE <= getNow()) {
+        currentEvent = nextEvent;
+        nextEvent = iterator.next().value;
+
+        // Don't remove the last event from the screen until 10 minutes past its time
+        if (nextEvent == undefined && constructTodayTime(currentEvent.endTime) + 10*MINUTE > getNow()) {
+            nextEvent = currentEvent;
         }
-        let minutesLeft = Math.ceil((currentEvent.beginTime.getTime() - Date.now()) / (60*1000));
-        gui.remaining.textContent = "Start in " + minutesLeft + " min";
+    }
+    if (nextEvent == undefined) {
+        activeEvent = null;
+        gui.content.innerHTML = '<em>Reached end of schedule</em>';
     } else {
-        let minutesLeft = Math.ceil((currentEvent.endTime.getTime() - Date.now()) / (60*1000));
-        let alertNeeded = false;
+        activeEvent = currentEvent;
+        gui.content.innerHTML = '<span class="period">' + currentEvent.beginTime + " - " + currentEvent.endTime + "</span><br>" + currentEvent.name;
+    }
+}
+
+function updateCurrentTime() {
+    // Deal with going over midnight in the future
+    if (constructTodayTime("23:59") + MINUTE <= getNow()) {
+        timeShift -= 24*60*MINUTE;
+    }
+    // Sanity check
+    if (constructTodayTime("00:00") > getNow()) {
+        timeShift += 24*60*MINUTE;
+    }
+    gui.time.textContent = gui['fake-time'].value = new Date(getNow()).toLocaleTimeString('en-GB').substring(0, 5);
+}
+
+function updateRemainingTime() {
+    if (activeEvent == null) { // End of the schedule
+        document.body.classList.remove('warn-0-mins');
+        document.body.classList.remove('warn-5-mins');
+        document.body.classList.remove('warn-10-mins');
+        gui.remaining.textContent = '';
+        return;
+    }
+    if (constructTodayTime(activeEvent.beginTime) > getNow()) { // Upcoming event
+        document.body.classList.remove('warn-0-mins');
+        let minutesLeft = Math.ceil((constructTodayTime(activeEvent.beginTime) - getNow()) / MINUTE);
+        gui.remaining.textContent = "Start in " + minutesLeft + " min";
+    } else { // Ongoing event
+        let minutesLeft = Math.ceil((constructTodayTime(activeEvent.endTime) - getNow()) / MINUTE);
         if (minutesLeft <= 0) {
             if (!document.body.classList.contains('warn-0-mins')) {
                 document.body.classList.remove('warn-5-mins');
@@ -120,33 +124,20 @@ function updateGui() {
         }
         gui.remaining.textContent = Math.abs(minutesLeft) + " min " + (minutesLeft >= 0 ? "remaining" : "overshoot");
     }
-
-    // Show mute screen
-    if (!gui.content.classList.contains('mute-info') && currentEvent.beginTime.getTime() - 2*60*1000 <= Date.now() && currentEvent.beginTime.getTime() > Date.now()) {
-        gui.content.classList.add('mute-info');
-        updateContent();
-    }
-    // Hide mute screen
-    if (gui.content.classList.contains('mute-info') && currentEvent.beginTime.getTime() < Date.now()) {
-        gui.content.classList.remove('mute-info');
-        updateContent();
-    }
-    // Update current event
-    if (nextEvent != undefined && nextEvent.beginTime.getTime() - 10*60*1000 <= Date.now()) {
-        currentEvent = nextEvent;
-        nextEvent = iterator.next().value;
-        updateContent();
-    }
 }
 
-function updateContent() {
-    if (gui.content.classList.contains('mute-info')) {
-        gui.content.innerHTML = "<p>Don't forget to unmute when you're ready!</p><img src=\"mute.png\">";
-    } else {
-        gui.content.innerHTML = '<span class="times">' + getTimeString(currentEvent.beginTime) + " - " + getTimeString(currentEvent.endTime) + "</span><br>" + currentEvent.name;
-    }
+function getNow() {
+    return Date.now() + timeShift;
 }
 
-function getTimeString(date) {
-    return date.toLocaleTimeString('nl').substring(0, 5);
+function constructTodayTime(timestring) {
+    let today = new Date();
+    today.setHours(timestring.substring(0, 2));
+    today.setMinutes(timestring.substring(3));
+    return today.getTime();
 }
+
+gui['fake-time'].addEventListener("change", () => {
+    timeShift = constructTodayTime(gui['fake-time'].value) - Date.now();
+    updateGui();
+});

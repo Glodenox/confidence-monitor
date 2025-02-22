@@ -3,15 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Day of Dungeons presentation</title>
+    <title>Confidence Monitor</title>
     <link rel="stylesheet" href="style.css">
+    <script src="configuration.js"></script>
     <script src="index.js" defer></script>
 </head>
-<body>
+<body class="hide-cursor">
     <div class="page">
         <div id="remaining"></div>
         <div id="time">00:00</div>
         <div id="content">&nbsp;</div>
+        <p id="event-name"></p>
     </div>
+    <button id="settings-button">⚙️</button>
+    <div id="settings">
+        <div id="settings-close">&times;</div>
+        <div id="schedule"></div>
+    </div>
+    <div id="controls"><span id="monitor-name"></span> <input id="fake-time" type="time"></div>
 </body>
 </html>
