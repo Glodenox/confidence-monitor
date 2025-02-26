@@ -64,6 +64,7 @@ function updateContent() {
         // Don't remove the last event from the screen until 10 minutes past its time
         if (nextEvent == undefined && constructTodayTime(currentEvent.endTime) + 10*MINUTE > getNow()) {
             nextEvent = currentEvent;
+            break;
         }
     }
     if (nextEvent == undefined) {
@@ -71,7 +72,7 @@ function updateContent() {
         gui.content.innerHTML = '<em>Reached end of schedule</em>';
     } else {
         activeEvent = currentEvent;
-        gui.content.innerHTML = '<span class="period">' + currentEvent.beginTime + " - " + currentEvent.endTime + "</span><br>" + currentEvent.name;
+        gui.content.innerHTML = '<span class="period">' + currentEvent.beginTime + " - " + currentEvent.endTime + "</span>" + currentEvent.name;
     }
 }
 

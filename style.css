@@ -53,8 +53,9 @@ body.highlight {
     background-color: #faf9f6;
     color: #2b1d0f;
     padding: 1vw;
-    text-align: center;
-    align-content: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .page > p {
@@ -95,6 +96,7 @@ body.highlight {
 
 #content {
     grid-column: 1 / span 2;
+    flex-direction: column;
 }
 
 .period {
