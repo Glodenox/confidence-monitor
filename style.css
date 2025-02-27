@@ -97,6 +97,7 @@ body.highlight {
 #content {
     grid-column: 1 / span 2;
     flex-direction: column;
+	text-align: center;
 }
 
 .period {
