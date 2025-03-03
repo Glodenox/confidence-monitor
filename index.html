@@ -16,7 +16,19 @@
     <button id="settings-button">⚙️</button>
     <div id="settings">
         <div id="settings-close">&times;</div>
+        <p><label>Event name: <input id="settings-event-name" size="40"></label></p>
+        <p><label>Monitor name: <input id="settings-monitor-name" size="40"></label></p>
         <div id="schedule"></div>
+        <template id="schedule-item-template">
+            <div>
+                <input type="time" name="begin"> - <input type="time" name="end">: <input size="30" name="name">
+                <button name="move-item-up">⇧</button>
+                <button name="move-item-down">⇩</button>
+                <button class="danger" name="delete-item" title="Delete item">☒</button>
+            </div>
+        </template>
+        <input type="button" value="+ Add item" id="settings-schedule-add-item">
+        <input type="button" value="Reset" id="settings-schedule-reset" class="danger">
     </div>
     <div id="controls"><span id="monitor-name"></span> <input id="fake-time" type="time"></div>
     <script src="configuration.js"></script>

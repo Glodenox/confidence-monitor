@@ -11,6 +11,13 @@
     inherits: false;
 }
 
+:root {
+    --base-color: #d4b902;
+    --box-color: #faf9f6;
+    --text-color: #2b1d0f;
+    --danger-color: #ff4444;
+}
+
 html {
     font-family: "Zilla Slab", Sans-serif;
     font-size: 5vw;
@@ -18,7 +25,7 @@ html {
 
 body {
     height: 100vh;
-    background-color: #d4b902;
+    background-color: var(--base-color);
     margin: 0;
 }
 body.warn-0-mins {
@@ -40,6 +47,10 @@ body.highlight {
     animation-name: flash-background;
 }
 
+input.danger, button.danger {
+    background-color: var(--danger-color);
+}
+
 .page {
     display: grid;
     height: 92vh;
@@ -50,8 +61,8 @@ body.highlight {
 }
 
 .page > div {
-    background-color: #faf9f6;
-    color: #2b1d0f;
+    background-color: var(--box-color);
+    color: var(--text-color);
     padding: 1vw;
     display: flex;
     justify-content: center;
@@ -68,7 +79,7 @@ body.highlight {
 .hide-cursor {
     cursor: none;
 }
-.hide-cursor #settings-button, .hide-cursor #controls {
+.hide-cursor #settings-button, .hide-cursor #controls, .show-settings #controls {
 	display: none;
 }
 
@@ -120,7 +131,7 @@ body.highlight {
     position: absolute;
     color: #dddddd;
     background-color: rgba(0, 0, 0, 0.8);
-    padding: 10vh;
+    padding: 6vh 10vh;
     top: 0;
     right: 0;
     bottom: 0;
@@ -131,10 +142,9 @@ body.highlight {
 }
 .show-settings #settings {
     display: block;
-    font-size: 0.5rem;
+    font-size: 0.3em;
 }
-
-.show-settings #settings input {
+#settings input, #settings button {
     font-size: inherit;
 }
 
@@ -150,7 +160,39 @@ body.highlight {
 
 #settings-close {
     cursor: pointer;
-    font-size: 2em;
+    font-size: 3em;
+}
+
+#schedule {
+    overflow: auto;
+    height: 64vh;
+}
+
+#schedule > div {
+    margin: 0 1em 0.2em 0;
+    padding: 3px;
+    display: flex;
+    gap: 0.3em;
+}
+
+#schedule > div.error {
+    background-color: var(--danger-color);
+}
+
+#schedule > div input[name="name"] {
+    flex-grow: 1;
+}
+
+#schedule button {
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+}
+
+#settings-schedule-add-item, #settings-schedule-reset {
+    border: 3px solid black;
+    padding: 0.2em 2em;
+    margin-top: 0.3em;
+    margin-right: 1em;
 }
 
 #controls {
@@ -160,7 +202,7 @@ body.highlight {
     font-size: 2vw;
     padding: 0.5vh;
     border: 1px solid #000;
-    background-color: #d4b902;
+    background-color: var(--base-color);
 }
 
 #monitor-name {
@@ -168,18 +210,18 @@ body.highlight {
 }
 
 #fake-time {
-    border: 1px solid #2b1d0f;
+    border: 1px solid var(--text-color);
     font-size: inherit;
 }
 
 @keyframes flash-background {
     0% {
-        background-color: #d4b902;
+        background-color: var(--base-color);
     }
     50% {
         background-color: var(--flash-color);
     }
     100% {
-        background-color: #d4b902;
+        background-color: var(--base-color);
     }
 }
