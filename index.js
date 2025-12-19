@@ -117,6 +117,7 @@ function updateRemainingTime() {
     document.body.classList.remove('warn-0-mins');
     document.body.classList.remove('warn-5-mins');
     document.body.classList.remove('warn-10-mins');
+    document.body.classList.remove('warn-start');
     if (activeEvent == null) { // End of the schedule
         gui.remaining.textContent = '';
         return;
@@ -145,8 +146,12 @@ function updateRemainingTime() {
                 setTimeout(() => document.body.classList.remove('highlight'), 3750);
             }
         } else if (previousWarning == 5) {
-            console.log("appending warn-0-mins");
             document.body.classList.add('warn-0-mins');
+            document.body.classList.add('highlight');
+            setTimeout(() => document.body.classList.remove('highlight'), 4500);
+        }
+        if (gui.remaining.textContent.startsWith('Start in')) {
+            document.body.classList.add('warn-start');
             document.body.classList.add('highlight');
             setTimeout(() => document.body.classList.remove('highlight'), 4500);
         }
